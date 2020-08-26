@@ -39,7 +39,8 @@ class _CaptureScreenState extends State<CaptureScreen> {
     try {
       print('_capturePng');
       RenderRepaintBoundary boundary = previewContainer.currentContext.findRenderObject();
-      ui.Image capturedImage = await boundary.toImage(pixelRatio: 4);
+      ui.Image capturedImage = await boundary.toImage(pixelRatio: 20);
+      print('size ${capturedImage.width} & ${capturedImage.height}');
       timeStamp = Timeline.now;
       if (count < 1) {
         print('capturedImage timeStamp $timeStamp');
@@ -99,7 +100,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
         print('timeStamp $timeStamp');
       }
       ++count;
-      if (count > 10) {
+      if (count > 2) {
         print('timeStamp $timeStamp');
         return;
       }
