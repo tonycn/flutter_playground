@@ -1,16 +1,16 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:vector_math/vector_math.dart' as vector_math;
 
 class LocalCoordinateInfo {
-  const LocalCoordinateInfo(this.localRect, this.localTransform, this.localAlignment);
+  const LocalCoordinateInfo(this.localRect, this.localRotation);
   final Rect localRect;
-  final Matrix4 localTransform;
-  final Alignment localAlignment;
+  final Matrix4 localRotation;
 
   @override
   String toString() {
-    return 'rect $localRect, localTransform $localTransform';
+    return 'localRect $localRect, localRotate $localRotation';
   }
 }
 
@@ -21,59 +21,68 @@ extension RectEx on Rect {
   }
 }
 
-extension GlobalKeyEx on GlobalKey {
-  Rect get globalPaintBounds {
-    final renderObject = currentContext?.findRenderObject() as RenderBox;
-    var translation = renderObject?.getTransformTo(null)?.getTranslation();
-    final globalMiddle = renderObject?.localToGlobal(renderObject.paintBounds.middle);
-    print('globalMiddle $globalMiddle');
+extension MatrixEx on Matrix4 {
+  vector_math.Vector3 get scaleFactor {
+        final double scaleXSq = storage[0] * storage[0] +
+        storage[1] * storage[1] +
+        storage[2] * storage[2];
+    final double scaleYSq = storage[4] * storage[4] +
+        storage[5] * storage[5] +
+        storage[6] * storage[6];
+    final double scaleZSq = storage[8] * storage[8] +
+        storage[9] * storage[9] +
+        storage[10] * storage[10];
+    return vector_math.Vector3(scaleXSq, scaleYSq, scaleZSq);
+  }
+}
 
-    if (translation != null && renderObject.paintBounds != null) {
-      print('translation $translation ${renderObject.paintBounds}');
-      return renderObject.paintBounds.shift(Offset(translation.x, translation.y));
-    } else {
-      return null;
-    }
+extension GlobalKeyEx on GlobalKey {
+
+  Rect get globalRect {
+    final renderObject = currentContext?.findRenderObject() as RenderBox;
+    final rect = renderObject.paintBounds;
+    final globalMiddle = renderObject?.localToGlobal(rect.middle);
+    final globalLeftTop = renderObject?.localToGlobal(Offset.zero);
+    final globalRightTop = renderObject?.localToGlobal(Offset(rect.width, 0));
+    final globalLeftBottom = renderObject?.localToGlobal(Offset(0, rect.height));
+    final globalWidth = (globalRightTop - globalLeftTop).distance.abs();
+    final globalHeight = (globalLeftBottom - globalLeftTop).distance.abs();
+
+    print('globalWidth $globalWidth globalHeight $globalHeight globalLeftTop $globalLeftTop, globalRightTop ($globalRightTop), globalLeftBottom ($globalLeftBottom), box size (${renderObject.size})');
+
+    print('globalMiddle $globalMiddle, globalWidth ($globalWidth), globalHeight ($globalHeight), box size (${renderObject.size})');
+    final localRect = Rect.fromLTWH(globalMiddle.dx - globalWidth/2, globalMiddle.dy - globalHeight/2, globalWidth, globalHeight);
+    print('localRect $localRect');
+    return localRect;
   }
 
-  Matrix4 get globalTransform {
-    final renderObject = currentContext?.findRenderObject();
-    return renderObject?.getTransformTo(null);
+  Matrix4 get globalRotation {
+    final renderObject = currentContext?.findRenderObject() as RenderBox;
+    final transform = renderObject?.getTransformTo(null);
+    final rotation = transform.getRotation();
+    final scale = transform.scaleFactor;
+    rotation.setColumns(rotation.getColumn(0)/scale.x, rotation.getColumn(1)/scale.y, rotation.getColumn(2)/scale.z);
+    final rotationMatrix4 = Matrix4.identity();
+    rotationMatrix4.setRotation(rotation);
+    return rotationMatrix4;
   }
 
   LocalCoordinateInfo convertTo(GlobalKey other) {
 
-//    final matrix4 = Transform.rotate(angle: pi/2).transform;
-//    final rotation = matrix4.getRotation();
-//    print('matrix4 $matrix4 rotation $rotation');
+    final selfRect = globalRect;
+    final selfRotation = globalRotation;
 
-    final selfRect = globalPaintBounds;
-    final selfWidget = currentContext?.widget as Container;
-    final selfTranslation = currentContext?.findRenderObject()?.getTransformTo(null)?.getTranslation();
-    final selfAlignment = (selfWidget.alignment as Alignment) ?? Alignment.center;
-    final selfAlignmentPos = selfRect.middle + Offset(selfAlignment.x * selfRect.width / 2, selfAlignment.y * selfRect.height / 2);
-    print('globalPaintBounds $globalPaintBounds selfAlignmentPos $selfRect $selfAlignmentPos selfTranslation: $selfTranslation');
+    final localRenderObject = other?.currentContext?.findRenderObject() as RenderBox;
+    final localTopLeft = localRenderObject.globalToLocal(selfRect.topLeft);
+    final localBottomRight = localRenderObject.globalToLocal(selfRect.bottomRight);
 
-    final otherRenderObject = other?.currentContext?.findRenderObject() as RenderBox;
-    var localOrigin = otherRenderObject?.globalToLocal(Offset(selfRect.left, selfRect.top));
-    var localAlignmentPos = otherRenderObject?.globalToLocal(selfAlignmentPos);
-
-    var localSize = Size(selfRect.width, selfRect.height);
-    final otherTransform = other?.globalTransform;
-
-
-    final selfTransform = globalTransform;
-
-//    print('otherTransform $otherTransform');
-    final localTransform = selfTransform * Matrix4.inverted(otherTransform);
-
-    final localRect = Rect.fromLTWH(localOrigin.dx, localOrigin.dy, localSize.width, localSize.height);
-    final localAlignment = Alignment(
-        (localAlignmentPos.dx - localRect.middle.dx) / (localRect.width / 2),
-        (localAlignmentPos.dy - localRect.middle.dy) / (localRect.height / 2));
-    print('$localRect localAlignment $localAlignment ( $localAlignmentPos )');
-    final tmp = Alignment(-1.08, -1.54);
-    return LocalCoordinateInfo(localRect, localTransform,  localAlignment);
+    return LocalCoordinateInfo(
+        Rect.fromLTRB(
+            localTopLeft.dx,
+            localTopLeft.dy,
+            localBottomRight.dx,
+            localBottomRight.dy),
+        selfRotation);
   }
 }
 
@@ -166,9 +175,10 @@ class Transform2ScreenState extends State<Transform2Screen> {
                       angle: pi / 4,
                       child: GestureDetector(
                           onTap: () {
-                            print('normalKey ${normalKey.globalPaintBounds}');
-                            print('end normalKey');
-
+                            print('normalKey ${normalKey.globalRect}');
+                            final normalInfo = contentKey.convertTo(normalKey);
+                            print('end normalKey, normalInfo $normalInfo');
+                            print('\n\n');
                             print('on tap text in $transformedContent');
 //                            print(' tap  widget ${contentKey.currentWidget}, ${Colors.blueAccent}');
 //                            print(" tap  widget rect "
@@ -197,24 +207,22 @@ class Transform2ScreenState extends State<Transform2Screen> {
     );
 
     if (_coordinateInfo != null) {
-//      print('LocalCoordinateInfo \n $_coordinateInfo');
+      print('_coordinateInfo != null LocalCoordinateInfo \n $_coordinateInfo');
       final stack = Stack(
         children: [
           Positioned(
               left: _coordinateInfo.localRect.left,
               top: _coordinateInfo.localRect.top,
               child: IgnorePointer(
-                  child: Container(
+                  child: Transform(transform: _coordinateInfo.localRotation, child:Container(
                 width: _coordinateInfo.localRect.width,
                 height: _coordinateInfo.localRect.height,
-                color: Colors.red,
-              )))
+                color: Colors.blue,
+              ))))
         ],
       );
 
-      container2 = Transform(
-        alignment: _coordinateInfo.localAlignment,
-        transform: _coordinateInfo.localTransform,
+      container2 = Container(
         child: stack,
       );
     }
