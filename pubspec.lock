@@ -81,6 +81,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.12.8"
+  matrix4_transform:
+    dependency: "direct main"
+    description:
+      name: matrix4_transform
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.1.4"
   meta:
     dependency: transitive
     description:

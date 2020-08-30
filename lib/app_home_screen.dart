@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_playground/default_screen.dart';
 import 'package:flutter_playground/gesture_test_screen.dart';
+import 'package:flutter_playground/transform2_screen.dart';
 import 'package:flutter_playground/transform_screen.dart';
 
 import 'capture_screen.dart';
@@ -11,8 +12,12 @@ class HomeTabsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const tabs = [Center(child: TransformScreen()), Center(child: CaptureScreen()), Center(child: GestureTestScreen())];
-    return const HomeTabsWidget(tabs);
+    final tabs = [Center(child: TransformScreen()),
+      Center(child: CaptureScreen()),
+      Center(child: GestureTestScreen()),
+      Center(child: Transform2Screen(),)
+    ];
+    return HomeTabsWidget(tabs);
   }
 }
 
@@ -25,7 +30,7 @@ class HomeTabsWidget extends StatefulWidget {
 }
 
 class _HomeTabsWidgetState extends State<HomeTabsWidget> {
-  static const List<String> titles = [ 'I', 'II', 'III', 'IV'];
+  static const List<String> titles = [ 'I', 'II', 'III', 'IV', 'V'];
 
   int index = 0;
 
@@ -51,23 +56,27 @@ class _HomeTabsWidgetState extends State<HomeTabsWidget> {
         color: Theme.of(context).backgroundColor,
       ),
       bottomNavigationBar: BottomNavigationBar(
-        items: const [
+        items: [
           BottomNavigationBarItem(
             icon: Icon(Icons.dashboard),
-            title: Text('Tab 1'),
+            title: Text(''),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.textsms),
-            title: Text('Tab 2'),
+            title: Text(''),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.remove),
-            title: Text('Tab 3'),
+            title: Text(''),
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.transform),
+            title: Text(''),
           ),
         ],
         currentIndex: index,
-        unselectedItemColor: Colors.white12,
-        selectedItemColor: Colors.white,
+        unselectedItemColor: Colors.black54,
+        selectedItemColor: Colors.black,
 
         unselectedFontSize: Theme.of(context).textTheme.button.fontSize,
         selectedFontSize: Theme.of(context).textTheme.button.fontSize,
