@@ -23,7 +23,8 @@ extension RectEx on Rect {
 
 extension MatrixEx on Matrix4 {
   vector_math.Vector3 get scaleFactor {
-        final double scaleXSq = storage[0] * storage[0] +
+
+    final double scaleXSq = storage[0] * storage[0] +
         storage[1] * storage[1] +
         storage[2] * storage[2];
     final double scaleYSq = storage[4] * storage[4] +
@@ -32,7 +33,7 @@ extension MatrixEx on Matrix4 {
     final double scaleZSq = storage[8] * storage[8] +
         storage[9] * storage[9] +
         storage[10] * storage[10];
-    return vector_math.Vector3(scaleXSq, scaleYSq, scaleZSq);
+    return vector_math.Vector3(sqrt(scaleXSq), sqrt(scaleYSq), sqrt(scaleZSq));
   }
 }
 
@@ -61,9 +62,11 @@ extension GlobalKeyEx on GlobalKey {
     final transform = renderObject?.getTransformTo(null);
     final rotation = transform.getRotation();
     final scale = transform.scaleFactor;
+    print('scale $scale');
     rotation.setColumns(rotation.getColumn(0)/scale.x, rotation.getColumn(1)/scale.y, rotation.getColumn(2)/scale.z);
     final rotationMatrix4 = Matrix4.identity();
     rotationMatrix4.setRotation(rotation);
+
     return rotationMatrix4;
   }
 
@@ -160,7 +163,7 @@ class Transform2ScreenState extends State<Transform2Screen> {
             transformHitTests: true,
             origin: Offset.zero,
             alignment: Alignment.center,
-            scale: 1,
+            scale: 0.5,
             child: Stack(
               children: [
                 Positioned(
@@ -214,7 +217,7 @@ class Transform2ScreenState extends State<Transform2Screen> {
               left: _coordinateInfo.localRect.left,
               top: _coordinateInfo.localRect.top,
               child: IgnorePointer(
-                  child: Transform(transform: _coordinateInfo.localRotation, child:Container(
+                  child: Transform(transform: _coordinateInfo.localRotation, alignment: Alignment.center, child:Container(
                 width: _coordinateInfo.localRect.width,
                 height: _coordinateInfo.localRect.height,
                 color: Colors.blue,
@@ -241,13 +244,15 @@ class Transform2ScreenState extends State<Transform2Screen> {
           ),
         ),
         Positioned(
-          key: container2Key,
           left: 0,
           top: 0,
           bottom: 0,
           right: 0,
           child: IgnorePointer(
-            child: container2,
+            child: Transform.scale(scale: 2, child:Container(
+              key: container2Key,
+              child: container2,
+            )),
           ),
         )
       ],
