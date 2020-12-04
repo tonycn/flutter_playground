@@ -4,7 +4,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_playground/app_home_screen.dart';
 
-import 'child_widget.dart';
+import 'sample/child_widget.dart';
 
 void main() {
   runApp(MyApp());

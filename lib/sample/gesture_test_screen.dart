@@ -42,8 +42,8 @@ class _GestureTestScreenState extends State<GestureTestScreen> {
       },
       child: Center(
         child: Container(
-          width: 50,
-          height: 50,
+          width: 150,
+          height: 150,
           color: Colors.pink,
         ),
       ),
@@ -57,7 +57,7 @@ class _GestureTestScreenState extends State<GestureTestScreen> {
         );
     final stack = Stack(
       children: [
-        Positioned(left: 0, top: 0, child: tapGesture2),
+        Positioned(left: 100, top: 100, child: tapGesture2),
         Positioned(left: 10, top: 10, child: container3)
       ],
     );

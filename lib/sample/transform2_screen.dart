@@ -163,7 +163,7 @@ class Transform2ScreenState extends State<Transform2Screen> {
             transformHitTests: true,
             origin: Offset.zero,
             alignment: Alignment.center,
-            scale: 0.5,
+            scale: 1.2,
             child: Stack(
               children: [
                 Positioned(
@@ -175,7 +175,7 @@ class Transform2ScreenState extends State<Transform2Screen> {
                   left: 50,
                   top: 50,
                   child: Transform.rotate(
-                      angle: pi / 4,
+                      angle: pi/8,
                       child: GestureDetector(
                           onTap: () {
                             print('normalKey ${normalKey.globalRect}');

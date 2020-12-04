@@ -2,8 +2,8 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
-class TransformScreen extends StatelessWidget {
-  const TransformScreen();
+class TransformTextScreen extends StatelessWidget {
+  const TransformTextScreen();
   @override
   Widget build(BuildContext context) {
     final content01 = Container(
@@ -122,53 +122,40 @@ class TransformScreen extends StatelessWidget {
                       child: Transform.rotate(alignment: Alignment.center, angle: 0, child: Text('Rotated Text'))))
             ])));
 
+
+    final textController = TextEditingController();
+    textController.text = '点击输入文本';
+
     final col = Column(
       children: [
         content0,
-        Transform.rotate(angle: pi / 2, child: content3),
-        Container(color: Colors.black.withOpacity(0.4), width: 200, height: 100),
+//        Transform.rotate(angle: pi / 2, child: content3),
+//        Container(color: Colors.black.withOpacity(0.4), width: 200, height: 100),
         Container(
-          color: Colors.orange.withOpacity(0.4),
+          color: Colors.black.withOpacity(0.4),
           width: 200,
           height: 100,
-          child: OverflowBox(
-            minWidth: 200,
-            minHeight: 100,
-            maxWidth: 400,
-            maxHeight: 200,
+          child: Center(
             child: Transform.scale(
                 origin: Offset.zero,
                 alignment: Alignment.center,
-                scale: 0.5,
-                child: Stack(
-                  children: [
-                    Positioned(
-                        left: 0,
-                        top: 0,
-                        child: GestureDetector(
-                          onTap: () {
-                            print('on tap scaled');
-                          },
-                          child: Container(
-                              color: Colors.blueGrey.withOpacity(0.8),
-                              width: 200 * 2.0,
-                              height: 100 * 2.0,
-                              child: Stack(
-                                children: [
-                                  Positioned(
-                                    top: 10,
-                                    left: 10,
-                                    child: GestureDetector(
-                                        onTap: () {
-                                          print('on tap text');
-                                        },
-                                        child: Text('Hello')),
-                                  )
-                                ],
-                              )),
-                        ))
-                  ],
-                )),
+                scale: 15,
+                child: TextField(
+
+                  decoration: const InputDecoration(
+                    border: InputBorder.none,
+                    hintText: '点击输入文本',
+                    fillColor: Colors.black,
+                    filled: true,
+
+                  ),
+
+                  textAlign: TextAlign.center,
+                  readOnly: true,
+                  controller: textController,
+                  style: TextStyle(fontSize: 4, color: Colors.white),
+                )
+            ),
           ),
         ),
         rotateStackSampleWidget,
@@ -176,7 +163,7 @@ class TransformScreen extends StatelessWidget {
     );
 
     return GestureDetector(child: col, onTap: () {
-      print('on tap column');
+      print('on tap column xxxxxxx');
     },);
   }
 }

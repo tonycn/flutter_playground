@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_playground/default_screen.dart';
-import 'package:flutter_playground/gesture_test_screen.dart';
-import 'package:flutter_playground/transform2_screen.dart';
-import 'package:flutter_playground/transform_screen.dart';
+import 'package:flutter_playground/sample/overflow_canvas_screen.dart';
+import 'package:flutter_playground/sheet/snap_sheet_example_screen.dart';
+import 'package:flutter_playground/sample/text_field_test_screen.dart';
+import 'package:flutter_playground/sample/transform_screen.dart';
 
-import 'capture_screen.dart';
+import 'sample/capture_screen.dart';
 
 
 class HomeTabsScreen extends StatelessWidget {
@@ -12,10 +12,11 @@ class HomeTabsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tabs = [Center(child: TransformScreen()),
+    final tabs = [
+      Center(child: TransformScreen()),
       Center(child: CaptureScreen()),
-      Center(child: GestureTestScreen()),
-      Center(child: Transform2Screen(),)
+      Center(child: OverflowCanvasScreen()),
+      Center(child: SnapSheetExampleScreen(),)
     ];
     return HomeTabsWidget(tabs);
   }
